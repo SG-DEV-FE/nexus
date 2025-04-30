@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { Vehicle } from './types';
 import Modal from 'react-modal'; 
 import { dataURL } from '@/public/dataURL';
+import { ChevronDownIcon } from '@heroicons/react/16/solid';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 
 export default function VehiclesList() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -13,6 +15,7 @@ export default function VehiclesList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const vehiclesPerPage = 6;
+  const [sortOption, setSortOption] = useState<string>('Highest Price'); // Default to Highest Price
 
   const fetchVehicles = async () => {
     try {
@@ -25,16 +28,38 @@ export default function VehiclesList() {
   };
 
   const filterVehicles = () => {
-    let filtered = vehicles;
+    // Always work with a new array to avoid mutating state
+    let filtered = [...vehicles];
+
+    // Apply top filter (All, Used, New, Offers)
     if (selectedFilter === 'Used') {
-      filtered = vehicles.filter((vehicle) => vehicle.advert_classification === 'Used');
+      filtered = filtered.filter((vehicle) => vehicle.advert_classification === 'Used');
     } else if (selectedFilter === 'New') {
-      filtered = vehicles.filter((vehicle) => vehicle.advert_classification === 'New');
+      filtered = filtered.filter((vehicle) => vehicle.advert_classification === 'New');
     } else if (selectedFilter === 'Offers') {
-      filtered = vehicles.filter((vehicle) => vehicle.advert_classification === 'Offers');
+      filtered = filtered.filter((vehicle) => vehicle.advert_classification === 'Offers');
     }
+
+    // Apply sorting logic
+    if (sortOption === 'Lowest Price') {
+      filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else if (sortOption === 'Highest Price') {
+      filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    } else if (sortOption === 'Lowest PCM') {
+      filtered.sort((a, b) => parseFloat(a.monthly_payment) - parseFloat(b.monthly_payment));
+    } else if (sortOption === 'Highest PCM') {
+      filtered.sort((a, b) => parseFloat(b.monthly_payment) - parseFloat(a.monthly_payment));
+    }
+
     setFilteredVehicles(filtered);
   };
+
+  const priceTags = [
+    {label: 'Lowest Price', value: 'Lowest Price'},
+    {label: 'Highest Price', value: 'Highest Price'},
+    {label: 'Lowest PCM', value: 'Lowest PCM'},
+    {label: 'Highest PCM', value: 'Highest PCM'},
+  ];
 
   const openModal = (images: string[]) => {
     setModalImages(images);
@@ -53,7 +78,7 @@ export default function VehiclesList() {
   useEffect(() => {
     filterVehicles();
     setCurrentPage(1); // Reset to the first page when filter changes
-  }, [vehicles, selectedFilter]);
+  }, [vehicles, selectedFilter, sortOption]);
 
   // Pagination logic
   const indexOfLastVehicle = currentPage * vehiclesPerPage;
@@ -69,6 +94,7 @@ export default function VehiclesList() {
 
   return (
     <>
+    {/* top filter */}
       <div className="grid grid-cols-4 text-center mb-4 gap-4 nav">
         {['All', 'Used', 'New', 'Offers'].map((filter) => (
           <p
@@ -77,18 +103,57 @@ export default function VehiclesList() {
               cursor-pointer 
               ${selectedFilter === filter ? 'border-b-[4px] border-[#7572FF]' : 'text-black-400'}
             `}
-            onClick={() => setSelectedFilter(filter)}
+            onClick={() => {
+              setSelectedFilter(filter);
+              setSortOption('Highest Price'); // Reset sort to Highest Price on filter change
+            }}
           >
             {filter}
           </p>
         ))}
       </div>
+      {/* sub filter */}
+      <div className='px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 grid-rows-1'>
+        <p className='text-[14px] col-span-1'>Showing {currentVehicles.length} of {filteredVehicles.length} cars</p>
+        <Menu as="div" className="relative inline-block text-left col-span-1 justify-end">
+          <div>
+            <MenuButton
+              as="button"
+              className="inline-flex justify-center w-full text-[14px] text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
+            >
+              {sortOption} {/* Update button text to reflect selected sort option */}
+              <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+            </MenuButton>
+          </div>
+
+          <MenuItems
+            as="div"
+            className="absolute right-0 z-10 mt-2 w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          >
+            {priceTags.map((option) => (
+              <MenuItem key={option.label}>
+                {({ active }) => (
+                  <button
+                    onClick={() => setSortOption(option.value)}
+                    className={`${
+                      active ? 'bg-gray-100' : ''
+                    } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700`}
+                  >
+                    {option.value}
+                  </button>
+                )}
+              </MenuItem>
+            ))}
+          </MenuItems>
+        </Menu>
+      </div>
+      {/* main */}
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {currentVehicles.map((vehicle, index) => (
             <div
               key={vehicle.vehicle_id || Math.random()}
-              className="border rounded-lg p-4 shadow-md"
+              className="shadow-md"
             >
               <div className="relative">
                 <div className="flex md:hidden overflow-x-auto space-x-2">
@@ -100,7 +165,7 @@ export default function VehiclesList() {
                         alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
                         width={113}
                         height={84}
-                        className="object-cover rounded"
+                        className="object-cover rounded-[16px]"
                         placeholder="blur"
                         blurDataURL={dataURL}
                       />

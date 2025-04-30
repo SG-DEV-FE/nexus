@@ -16,6 +16,7 @@ export interface Vehicle {
     doors: string;
     location: string;
     reserved: string;
+    monthly_payment: string;
     [key: string]: string | number | string[] | { thumb: string; large: string; medium: string }[];
 }
 
