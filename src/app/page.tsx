@@ -2,9 +2,12 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Vehicle } from './types';
-
+import Modal from 'react-modal'; 
+import { dataURL } from '@/public/dataURL';
 export default function VehiclesList() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [modalImages, setModalImages] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchVehicles = async () => {
     try {
@@ -17,7 +20,17 @@ export default function VehiclesList() {
     }
   };
 
-  // Fetch vehicles when the component mounts
+  const openModal = (images: string[]) => {
+    setModalImages(images);
+    console.log('Modal Images:', images); // Log the images to be displayed in the modal
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalImages([]);
+  };
+
   useEffect(() => {
     fetchVehicles();
   }, []); // Ensure this runs only once by passing an empty dependency array
@@ -31,15 +44,39 @@ export default function VehiclesList() {
             key={vehicle.vehicle_id || Math.random()} // Fallback to a random key if `vehicle_id` is missing
             className="border rounded-lg p-4 shadow-md"
           >
-            <Image
-              src={
-                vehicle.media_urls?.[0]?.thumb || 'https://via.placeholder.com/300x160.png?text=No+Image'
-              } // Fallback to placeholder if no image
-              alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`} // Fallback for missing make/model
-              width={300} // Set a fixed width
-              height={160} // Set a fixed height
-              className="w-full h-40 object-cover mb-2"
-            />
+            <div className="relative">
+              {/* Mobile View: Show all images inline, scrollable */}
+              <div className="flex md:hidden overflow-x-auto space-x-2">
+                {vehicle.media_urls?.map((media, index) => (
+                  media.thumb ? ( // Only render if the image URL exists
+                    <Image
+                      key={index}
+                      src={media.thumb}
+                      alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
+                      width={113}
+                      height={84}
+                      className="object-cover rounded"
+                      placeholder="blur"
+                      blurDataURL={dataURL}
+                    />
+                  ) : null // Do not render anything if the image URL is missing
+                ))}
+              </div>
+
+              {/* Above Mobile View: Show highest resolution image and enable modal */}
+              {vehicle.media_urls?.[0]?.large && ( // Only render if the large image URL exists
+                <Image
+                  src={vehicle.media_urls[0].large}
+                  alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
+                  width={300}
+                  height={160}
+                  className="hidden md:block w-full h-40 object-cover mb-2 cursor-pointer"
+                  onClick={() => openModal(vehicle.media_urls?.map((media) => media.large) || [])}
+                  placeholder="blur"
+                  blurDataURL={dataURL}
+                />
+              )}
+            </div>
             <h2 className="text-lg font-semibold">
               {vehicle.make || 'Unknown'} {vehicle.model || 'Unknown'}
             </h2>
@@ -48,6 +85,41 @@ export default function VehiclesList() {
           </div>
         ))}
       </div>
+
+      {/* Modal for viewing all images */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Vehicle Images"
+        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+      >
+        <div className="bg-white p-4 rounded-lg max-w-3xl w-full relative overflow-y-auto max-h-[90vh]">
+          {/* Close button styled as "X" */}
+          <button
+            onClick={closeModal}
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+          >
+            &times;
+          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {modalImages.map((image, index) => (
+              image ? ( // Only render if the image URL exists
+                <Image
+                  key={index}
+                  src={image}
+                  alt={`Vehicle Image ${index + 1}`}
+                  width={300}
+                  height={200}
+                  className="object-cover rounded"
+                  placeholder="blur"
+                  blurDataURL={dataURL}
+                />
+              ) : null // Do not render anything if the image URL is missing
+            ))}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
