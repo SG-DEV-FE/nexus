@@ -363,31 +363,31 @@ export default function VehiclesList() {
                 {/* For medium screens: after 3rd card */}
                 {isMedium && index === 2 && (
                   <div className="hidden md:flex lg:hidden md:col-span-1 justify-center mb-6">
-                    <div className="flex flex-col bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-6 h-[364px] w-[327px] shadow-sm">
+                    <div className="flex flex-col bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-6 h-[364px] w-[327px] shadow-[0_6px_25px_0_rgba(0,0,0,0.15)]">
                       <h3 className="font-bold text-[24px] text-center mb-1">Value your car</h3>
                       <p className="text-[14px] text-center mb-6">Find out the value of your car in just a few minutes.</p>
                       
                       <div className="space-y-4 mb-6">
-                        <div>
-                          <label htmlFor="vrm" className="block text-[14px] font-medium mb-1">
+                        <div className='relative'>
+                          <label htmlFor="vrm-lg" className="absolute top-[-9px] left-[7px] text-[12px] font-medium mb-1 bg-[#F6F7FB] px-[6px] rounded-[100px]">
                             VRM <span className="text-red-500">*</span>
                           </label>
                           <input 
                             type="text"
-                            id="vrm"
+                            id="vrm-lg"
                             placeholder="Enter VRM"
-                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[16px] text-[14px]"
                           />
                         </div>
-                        <div>
-                          <label htmlFor="mileage" className="block text-[14px] font-medium mb-1">
+                        <div className='relative'>
+                          <label htmlFor="mileage-lg" className="absolute top-[-9px] left-[7px] text-[12px] font-medium mb-1 bg-[#F6F7FB] px-[6px] rounded-[100px]">
                             Mileage <span className="text-red-500">*</span>
                           </label>
                           <input 
                             type="text"
-                            id="mileage"
+                            id="mileage-lg"
                             placeholder="Enter mileage"
-                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[16px] text-[14px]"
                           />
                         </div>
                       </div>
@@ -402,31 +402,31 @@ export default function VehiclesList() {
                 {/* For large screens: after 4th card */}
                 {isLarge && index === 3 && (
                   <div className="hidden lg:flex lg:col-span-1 justify-center mb-6">
-                    <div className="flex flex-col bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-6 h-[364px] w-full shadow-sm">
-                      <h3 className="font-bold text-[24px] text-center mb-1">Value your car</h3>
-                      <p className="text-[14px] text-center mb-6">Find out the value of your car in just a few minutes.</p>
+                    <div className="flex flex-col bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-6 h-[364px] w-full shadow-[0_6px_25px_0_rgba(0,0,0,0.15)]">
+                      <h3 className="font-[600] text-[24px] text-center mb-1">Value your car</h3>
+                      <p className="text-[16px] text-center mb-6">Find out the value of your car in just a few minutes.</p>
                       
                       <div className="space-y-4 mb-6">
-                        <div>
-                          <label htmlFor="vrm-lg" className="block text-[14px] font-medium mb-1">
+                        <div className='relative'>
+                          <label htmlFor="vrm-lg" className="absolute top-[-9px] left-[7px] text-[12px] font-medium mb-1 bg-[#F6F7FB] px-[6px] rounded-[100px]">
                             VRM <span className="text-red-500">*</span>
                           </label>
                           <input 
                             type="text"
                             id="vrm-lg"
                             placeholder="Enter VRM"
-                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[16px] text-[14px]"
                           />
                         </div>
-                        <div>
-                          <label htmlFor="mileage-lg" className="block text-[14px] font-medium mb-1">
+                        <div className='relative'>
+                          <label htmlFor="mileage-lg" className="absolute top-[-9px] left-[7px] text-[12px] font-medium mb-1 bg-[#F6F7FB] px-[6px] rounded-[100px]">
                             Mileage <span className="text-red-500">*</span>
                           </label>
                           <input 
                             type="text"
                             id="mileage-lg"
                             placeholder="Enter mileage"
-                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[16px] text-[14px]"
                           />
                         </div>
                       </div>
