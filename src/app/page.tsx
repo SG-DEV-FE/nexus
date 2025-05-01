@@ -16,9 +16,38 @@ export default function VehiclesList() {
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const vehiclesPerPage = 6;
   const [sortOption, setSortOption] = useState<string>('Highest Price'); // Default to Highest Price
   const [starred, setStarred] = useState<{ [id: string]: boolean }>({});
+
+  const getVehiclesPerPage = () => {
+    // This will run on the client side after component mounts
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth >= 1024) {
+        return 12; // 12 total slots with valuation card
+      } else if (window.innerWidth >= 768) {
+        return 8; // 8 total slots with valuation card
+      }
+    }
+    return 6; // 6 total slots with valuation card for mobile
+  };
+
+  const [vehiclesPerPage, setVehiclesPerPage] = useState<number>(6);
+
+  // Add this useEffect to update the vehiclesPerPage when window resizes
+  useEffect(() => {
+    const handleResize = () => {
+      setVehiclesPerPage(getVehiclesPerPage());
+    };
+    
+    // Set initial value
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchVehicles = async () => {
     try {
@@ -102,10 +131,41 @@ export default function VehiclesList() {
     }
   };
 
+  // Add this to your component to track screen width
+  const [screenWidth, setScreenWidth] = useState(0);
+
+  useEffect(() => {
+    // Set initial width
+    setScreenWidth(window.innerWidth);
+    
+    // Update width on resize
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // When calculating pagination
+  const calculateVehiclesPerPage = () => {
+    if (screenWidth >= 1024) {
+      return 11; // 11 vehicle cards + 1 valuation card = 12 items per page
+    } else if (screenWidth >= 768) {
+      return 7; // 7 vehicle cards + 1 valuation card = 8 items per page  
+    }
+    return 5; // 5 vehicle cards + 1 valuation card = 6 items per mobile page
+  };
+
+  // Update whenever screen size changes
+  useEffect(() => {
+    setVehiclesPerPage(calculateVehiclesPerPage());
+  }, [screenWidth]);
+
   return (
     <>
     {/* top filter */}
-      <div className="grid grid-cols-4 md:flex md:gap-3 text-center mb-4 gap-4 nav md:mx-8 md:mt-6 md:mb-4 md:justify-normal md:items-center">
+    <main className='md:w-[700px] lg:w-[1030px] m-auto'>
+      <div className="grid grid-cols-4 md:flex md:gap-3 text-center mb-4 gap-4 nav md:mt-6 md:mb-4 md:justify-normal md:items-center">
         <p className='sm-hidden text-[18px] font-bold text-black md:mr-5 md:mb-0 mb-2 col-span-4 md:col-auto md:w-[80px] md:text-left'>{filteredVehicles.length} cars</p>
         {['All', 'Used', 'New', 'Offers'].map((filter) => (
           <p
@@ -184,96 +244,202 @@ export default function VehiclesList() {
         </Menu>
       </div>
       {/* main */}
-      <div className="p-4">
+      <div className="">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentVehicles.map((vehicle, index) => (
-            <React.Fragment key={vehicle.vehicle_id || Math.random()}>
-              <div className="">
-                <div className="relative">
-                  <div className="flex md:hidden overflow-x-auto space-x-2">
-                    {vehicle.media_urls?.map((media, idx) => (
-                      media.thumb ? (
-                        <Image
-                          key={idx}
-                          src={media.thumb}
-                          alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
-                          width={113}
-                          height={84}
-                          className="object-cover rounded-[16px]"
-                          placeholder="blur"
-                          blurDataURL={dataURL}
-                        />
-                      ) : null
-                    ))}
-                  </div>
-                  {vehicle.media_urls?.[0]?.large && (
-                    <Image
-                      src={vehicle.media_urls[0].large}
-                      alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
-                      width={300}
-                      height={160}
-                      className="hidden md:block w-full h-40 object-cover mb-2 cursor-pointer"
-                      onClick={() => openModal(vehicle.media_urls?.map((media) => media.large) || [])}
-                      placeholder="blur"
-                      blurDataURL={dataURL}
-                    />
-                  )}
-                </div>
-                <div className='flex justify-between items-center px-2 pt-2'>
-                  <p className='text-[14px]-400 text-[#000000]'>{vehicle.plate} {vehicle.make} {vehicle.model}</p>
-                  <div className='flex justify-between items-center px-2'>
-                    {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center'>New</p>}
-                    <button
-                      onClick={() => toggleStar(String(vehicle.vehicle_id))}
-                      className="focus:outline-none ml-2"
-                      aria-label="Toggle favorite"
-                      type="button"
-                    >
-                      {starred[String(vehicle.vehicle_id)] ? (
-                        <SolidStarIcon className='w-[22px] h-[22px]' style={{ color: '#7572FF' }} />
-                      ) : (
-                        <OutlineStarIcon className='w-[22px] h-[22px]' />
-                      )}
-                    </button>
-                  </div>
-                </div>              
-                <div className='flex justify-between items-center px-2 pb-2'>
-                  <p className='text-[12px]'>{vehicle.derivative}</p>
-                </div>
-
-                <div>
-                  
-                </div>
-
-                {/* Details Specs */}
-                <div className='pb-2 md:hidden'>
-                  <div className='grid grid-cols-2 gap-2 px-2'>                
-                    <p className='text-[12px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles | {vehicle.fuel_type}</p>
-                    <p className='tex-[14px]'>£{vehicle.monthly_payment} /mo ({vehicle.monthly_finance_type})</p>
-                  </div>
-                  <div className='grid grid-cols-2 gap-2 px-2'>
-                    <p className='text-[12px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''} | {vehicle.body_type}</p>
-                    <p className='text-[12px]'><span className='text-[#F87B7B]'>£{vehicle.price}</span> <span className='line-through'>£{vehicle.original_price}</span></p>
-                  </div>
-                </div>
-              </div>
-              {/* Valuation inset */}
-              {/* TODO: adjust for md and up for the form group */}
-              {(index + 1) % 4 === 0 && (
-                <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center mb-6">
-                  <div className="flex items-center justify-between bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-[13px] w-full max-w-md shadow-sm">
-                    <div>
-                      <div className="font-bold text-[18px] text-black">Value your car</div>
-                      <div className="text-[12px] text-black mt-1">Find out in just a few minutes</div>
+          {currentVehicles.map((vehicle, index) => {
+            // Calculate the actual position in the full dataset
+            const actualIndex = indexOfFirstVehicle + index;
+            
+            // Determine if valuation cards should be shown
+            const isMobile = screenWidth > 0 && screenWidth < 768;
+            const isMedium = screenWidth >= 768 && screenWidth < 1024;
+            const isLarge = screenWidth >= 1024;
+            
+            return (
+              <React.Fragment key={vehicle.vehicle_id || Math.random()}>
+                {/* Vehicle Card */}
+                <div className="bg-white rounded-[16px] shadow-[0_6px_25px_0_rgba(0,0,0,0.15)] overflow-hidden md:h-[364px] md:w-[327px]">
+                  <div className="relative">
+                    <div className="flex md:hidden overflow-x-auto space-x-2">
+                      {vehicle.media_urls?.map((media, idx) => (
+                        media.thumb ? (
+                          <Image
+                            key={idx}
+                            src={media.thumb}
+                            alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
+                            width={113}
+                            height={84}
+                            className="object-cover rounded-[16px] w-[113px] h-[84px]"
+                            placeholder="blur"
+                            blurDataURL={dataURL}
+                          />
+                        ) : null
+                      ))}
                     </div>
-                    <button className="ml-4 px-[25px] py-[12px] bg-[#7572FF] text-white rounded-[16px] text-[16px]">
-                      Get valuation
-                    </button>
+                    <div className='hidden md:block lg:hidden'>
+                    {vehicle.media_urls?.[0]?.medium && (
+                      <Image
+                        src={vehicle.media_urls[0].medium}
+                        alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
+                        width={327}
+                        height={250}
+                        className="md:h-[250px] md:w-[327px] object-cover mb-2 cursor-pointer"
+                        onClick={() => openModal(vehicle.media_urls?.map((media) => media.large) || [])}
+                        placeholder="blur"
+                        blurDataURL={dataURL}
+                      />
+                    )}
+                    </div>
+                    <div className='hidden md:hidden lg:block'>
+                    {vehicle.media_urls?.[0]?.large && (
+                      <Image
+                        src={vehicle.media_urls[0].large}
+                        alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
+                        width={333}
+                        height={250}
+                        className="lg:h-[250px] lg:w-[333px] object-cover mb-2 cursor-pointer"
+                        onClick={() => openModal(vehicle.media_urls?.map((media) => media.large) || [])}
+                        placeholder="blur"
+                        blurDataURL={dataURL}
+                      />
+                    )}
+                    </div>
+                  </div>
+                  <div className='flex justify-between items-center px-2 pt-2'>
+                    <p className='text-[14px]-400 text-[#000000]'>{vehicle.plate} {vehicle.make} {vehicle.model}</p>
+                    <div className='flex justify-between items-center px-2'>
+                      {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center'>New</p>}
+                      <button
+                        onClick={() => toggleStar(String(vehicle.vehicle_id))}
+                        className="focus:outline-none ml-2"
+                        aria-label="Toggle favorite"
+                        type="button"
+                      >
+                        {starred[String(vehicle.vehicle_id)] ? (
+                          <SolidStarIcon className='w-[22px] h-[22px]' style={{ color: '#7572FF' }} />
+                        ) : (
+                          <OutlineStarIcon className='w-[22px] h-[22px]' />
+                        )}
+                      </button>
+                    </div>
+                  </div>              
+                  <div className='flex justify-between items-center px-2 pb-2'>
+                    <p className='text-[12px]'>{vehicle.derivative}</p>
+                  </div>
+
+                  <div>
+                    
+                  </div>
+
+                  {/* Details Specs */}
+                  <div className='pb-2 md:hidden'>
+                    <div className='grid grid-cols-2 gap-2 px-2'>                
+                      <p className='text-[12px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles | {vehicle.fuel_type}</p>
+                      <p className='tex-[14px]'>£{vehicle.monthly_payment} /mo ({vehicle.monthly_finance_type})</p>
+                    </div>
+                    <div className='grid grid-cols-2 gap-2 px-2'>
+                      <p className='text-[12px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''} | {vehicle.body_type}</p>
+                      <p className='text-[12px]'><span className='text-[#F87B7B]'>£{vehicle.price}</span> <span className='line-through'>£{vehicle.original_price}</span></p>
+                    </div>
                   </div>
                 </div>
-              )}
-            </React.Fragment>
-          ))}
+                
+                {/* Insert valuation card at specific positions */}
+                {/* For mobile: after 3rd card on the page */}
+                {isMobile && index === 3 && (
+                  <div className="col-span-1 flex md:hidden justify-center mb-6">
+                    <div className="flex items-center justify-between bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-[13px] w-full max-w-md shadow-sm">
+                      <div>
+                        <div className="font-bold text-[18px] text-black">Value your car</div>
+                        <div className="text-[12px] text-black mt-1">Find out in just a few minutes</div>
+                      </div>
+                      <button className="ml-4 px-[25px] py-[12px] bg-[#7572FF] text-white rounded-[16px] text-[16px]">
+                        Get valuation
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* For medium screens: after 3rd card */}
+                {isMedium && index === 2 && (
+                  <div className="hidden md:flex lg:hidden md:col-span-1 justify-center mb-6">
+                    <div className="flex flex-col bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-6 h-[364px] w-[327px] shadow-sm">
+                      <h3 className="font-bold text-[24px] text-center mb-1">Value your car</h3>
+                      <p className="text-[14px] text-center mb-6">Find out the value of your car in just a few minutes.</p>
+                      
+                      <div className="space-y-4 mb-6">
+                        <div>
+                          <label htmlFor="vrm" className="block text-[14px] font-medium mb-1">
+                            VRM <span className="text-red-500">*</span>
+                          </label>
+                          <input 
+                            type="text"
+                            id="vrm"
+                            placeholder="Enter VRM"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="mileage" className="block text-[14px] font-medium mb-1">
+                            Mileage <span className="text-red-500">*</span>
+                          </label>
+                          <input 
+                            type="text"
+                            id="mileage"
+                            placeholder="Enter mileage"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                          />
+                        </div>
+                      </div>
+                      
+                      <button className="w-full py-3 bg-[#7572FF] text-white rounded-[8px] text-[16px] font-medium">
+                        Value my car
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* For large screens: after 4th card */}
+                {isLarge && index === 3 && (
+                  <div className="hidden lg:flex lg:col-span-1 justify-center mb-6">
+                    <div className="flex flex-col bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-6 h-[364px] w-full shadow-sm">
+                      <h3 className="font-bold text-[24px] text-center mb-1">Value your car</h3>
+                      <p className="text-[14px] text-center mb-6">Find out the value of your car in just a few minutes.</p>
+                      
+                      <div className="space-y-4 mb-6">
+                        <div>
+                          <label htmlFor="vrm-lg" className="block text-[14px] font-medium mb-1">
+                            VRM <span className="text-red-500">*</span>
+                          </label>
+                          <input 
+                            type="text"
+                            id="vrm-lg"
+                            placeholder="Enter VRM"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="mileage-lg" className="block text-[14px] font-medium mb-1">
+                            Mileage <span className="text-red-500">*</span>
+                          </label>
+                          <input 
+                            type="text"
+                            id="mileage-lg"
+                            placeholder="Enter mileage"
+                            className="w-full p-3 border border-[#D1D6E0] rounded-[8px] text-[14px]"
+                          />
+                        </div>
+                      </div>
+                      
+                      <button className="w-full py-3 bg-[#7572FF] text-white rounded-[8px] text-[16px] font-medium">
+                        Value my car
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
 
         {/* Pagination */}
@@ -305,7 +471,7 @@ export default function VehiclesList() {
           </button>
         </div>
       </div>
-
+      {/* Back to top button */}
       <div className='flex justify-center items-center mt-5'>
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -315,7 +481,7 @@ export default function VehiclesList() {
           Back to top
         </button>
       </div>
-
+      {/* Modal for images */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -348,6 +514,7 @@ export default function VehiclesList() {
           </div>
         </div>
       </Modal>
+    </main>
     </>
   );
 }
