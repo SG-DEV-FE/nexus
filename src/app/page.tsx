@@ -109,7 +109,7 @@ export default function VehiclesList() {
           <p
             key={filter}
             className={`
-              cursor-pointer 
+              cursor-pointer text-[14px]
               ${selectedFilter === filter ? 'border-b-[4px] border-[#7572FF]' : 'text-black-400'}
             `}
             onClick={() => {
@@ -162,7 +162,7 @@ export default function VehiclesList() {
           {currentVehicles.map((vehicle, index) => (
             <div
               key={vehicle.vehicle_id || Math.random()}
-              className="shadow-md"
+              className=""
             >
               <div className="relative">
                 <div className="flex md:hidden overflow-x-auto space-x-2">
@@ -194,7 +194,7 @@ export default function VehiclesList() {
                   />
                 )}
               </div>
-              <div className='flex justify-between items-center px-2 py-2'>
+              <div className='flex justify-between items-center px-2 pt-2'>
                 <p className='text-[14px]-400 text-[#000000]'>{vehicle.plate} {vehicle.make} {vehicle.model}</p>
                 <div className='flex justify-between items-center px-2'>
                   {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center'>New</p>}
@@ -211,12 +211,22 @@ export default function VehiclesList() {
                     )}
                   </button>
                 </div>
+              </div>              
+              <div className='flex justify-between items-center px-2 pb-2'>
+                <p className='text-[12px]'>{vehicle.derivative}</p>
               </div>
-              <h2 className="text-lg font-semibold">
-                {vehicle.make || 'Unknown'} {vehicle.model || 'Unknown'}
-              </h2>
-              <p className="text-gray-600">Price: £{vehicle.price || 'N/A'}</p>
-              <p className="text-gray-500 text-sm">{vehicle.body_type || 'Unknown Body Type'}</p>
+
+              {/* Details Specs */}
+              <div className='pb-2 md:hidden'>
+                <div className='grid grid-cols-2 gap-2 px-2'>                
+                  <p className='text-[12px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles | {vehicle.fuel_type}</p>
+                  <p className='tex-[14px]'>£{vehicle.monthly_payment} /mo ({vehicle.monthly_finance_type})</p>
+                </div>
+                <div className='grid grid-cols-2 gap-2 px-2'>
+                  <p className='text-[12px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''} | {vehicle.body_type}</p>
+                  <p className='text-[12px]'><span className='text-[#F87B7B]'>£{vehicle.price}</span> <span className='line-through'>£{vehicle.original_price}</span></p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -224,7 +234,7 @@ export default function VehiclesList() {
         {/* Pagination */}
         <div className="flex justify-center items-center mt-6 space-x-1">
           <button
-            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50"
+            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -233,7 +243,7 @@ export default function VehiclesList() {
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i + 1}
-              className={`px-3 w-[54px] h-[30px] py-1 border rounded ${
+              className={`px-3 w-[54px] h-[30px] py-1 border rounded border-[#D1D6E0] ${
                 currentPage === i + 1 ? 'bg-[#7572FF] text-white' : ''
               }`}
               onClick={() => handlePageChange(i + 1)}
@@ -242,7 +252,7 @@ export default function VehiclesList() {
             </button>
           ))}
           <button
-            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50"
+            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
