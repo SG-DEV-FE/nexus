@@ -235,7 +235,7 @@ export default function VehiclesList() {
               {/* TODO: adjust for md and up for the form group */}
               {(index + 1) % 4 === 0 && (
                 <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center mb-6">
-                  <div className="flex items-center justify-between bg-[#D1D6E0] border border-[#D1D6E0] rounded-[16px] p-[13px] w-full max-w-md shadow-sm">
+                  <div className="flex items-center justify-between bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-[13px] w-full max-w-md shadow-sm">
                     <div>
                       <div className="font-bold text-[18px] text-black">Value your car</div>
                       <div className="text-[12px] text-black mt-1">Find out in just a few minutes</div>
