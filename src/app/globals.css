@@ -27,9 +27,15 @@ body {
 
 .nav {
   height: 40px;
-
-  & > p {
-    margin-top: 8px;
+  @media screen and (min-width: 768px) {
+    height: 50px;
   }
 
+}
+  
+.sm-hidden {
+  @media screen and (max-width: 768px) {
+    display: none;
+    
+  }
 }

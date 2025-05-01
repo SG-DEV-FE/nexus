@@ -105,13 +105,12 @@ export default function VehiclesList() {
   return (
     <>
     {/* top filter */}
-      <div className="grid grid-cols-4 text-center mb-4 gap-4 nav">
+      <div className="grid grid-cols-4 md:flex md:gap-3 text-center mb-4 gap-4 nav md:mx-8 md:mt-6 md:mb-4 md:justify-normal md:items-center">
+        <p className='sm-hidden text-[18px] font-bold text-black md:mr-5 md:mb-0 mb-2 col-span-4 md:col-auto md:w-[80px] md:text-left'>{filteredVehicles.length} cars</p>
         {['All', 'Used', 'New', 'Offers'].map((filter) => (
           <p
             key={filter}
-            className={`
-              cursor-pointer text-[14px]
-              ${selectedFilter === filter ? 'border-b-[4px] border-[#7572FF]' : 'text-black-400'}
+            className={`cursor-pointer text-[14px] md:px-[25px] md:py-[8px] md:rounded-[12px] md:h-[30px] md:font-[400] md:border md:leading-none md:mr-[-7px] hover:md:border-[#7572FF] hover:md:bg-[#7572FF] hover:md:text-white ${selectedFilter === filter ? 'border-b-[4px] border-[#7572FF] md:bg-[#7572FF] md:text-white ' : 'text-black-400 md:border-[#D1D6E0] md:bg-white'}
             `}
             onClick={() => {
               setSelectedFilter(filter);
@@ -121,9 +120,36 @@ export default function VehiclesList() {
             {filter}
           </p>
         ))}
+        <Menu as="div" className="text-left col-span-1 justify-end sm-hidden ml-auto w-[160px]">
+          <div>
+            <MenuButton
+              as="button"
+              className="cursor-pointer inline-flex justify-center w-full text-[14px] text-[#55595D] bg-[#F6F7FB] rounded-[16px] px-4 py-2 font-medium hover:bg-[#7572ff] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:bg-[#7572FF] focus:text-white"
+            >
+              {sortOption}
+              <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+            </MenuButton>
+          </div>
+          <MenuItems
+            as="div"
+            className="absolute right-8 z-10 mt-2 w-[160px] origin-top-right bg-[#F6F7FB] divide-y divide-gray-100 rounded-[16px] focus:outline-none"
+          >
+            {priceTags.map((option) => (
+              <MenuItem key={option.label}>
+                  <button
+                    onClick={() => setSortOption(option.value)}
+                    className='group cursor-pointer flex rounded-md items-center w-full px-4 py-2 text-sm text-[#55595D] hover:bg-[#7572FF] hover:text-white focus:bg-[]#7572FF] focus:text-white'
+                  >
+                    {option.value}
+                  </button>
+                
+              </MenuItem>
+            ))}
+          </MenuItems>
+        </Menu>
       </div>
       {/* sub filter */}
-      <div className='px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 grid-rows-1'>
+      <div className='px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 grid-rows-1 md:hidden'>
         <p className='text-[14px] col-span-1'>Showing {currentVehicles.length} of {filteredVehicles.length} cars</p>
         <Menu as="div" className="relative inline-block text-left col-span-1 justify-end">
           <div>
@@ -138,7 +164,7 @@ export default function VehiclesList() {
 
           <MenuItems
             as="div"
-            className="absolute right-0 z-10 mt-2 w-56 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            className="absolute right-0 z-10 mt-2 w-[160px] origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg focus:outline-none"
           >
             {priceTags.map((option) => (
               <MenuItem key={option.label}>
@@ -147,7 +173,7 @@ export default function VehiclesList() {
                     onClick={() => setSortOption(option.value)}
                     className={`${
                       active ? 'bg-gray-100' : ''
-                    } group flex rounded-md items-center w-full px-4 py-2 text-sm text-gray-700`}
+                    } group cursor-pointer flex rounded-md items-center w-full px-4 py-2 text-sm text-[#55595D] hover:bg-[#7572FF] hover:text-white focus:bg-[]#7572FF] focus:text-white`}
                   >
                     {option.value}
                   </button>
