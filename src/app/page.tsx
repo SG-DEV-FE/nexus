@@ -45,13 +45,13 @@ export default function VehiclesList() {
 
     // Apply sorting logic
     if (sortOption === 'Lowest Price') {
-      filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+      filtered.sort((a, b) => parseFloat(String(a.price)) - parseFloat(String(b.price)));
     } else if (sortOption === 'Highest Price') {
-      filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+      filtered.sort((a, b) => parseFloat(String(b.price)) - parseFloat(String(a.price)));
     } else if (sortOption === 'Lowest PCM') {
-      filtered.sort((a, b) => parseFloat(a.monthly_payment) - parseFloat(b.monthly_payment));
+      filtered.sort((a, b) => parseFloat(String(a.monthly_payment)) - parseFloat(String(b.monthly_payment)));
     } else if (sortOption === 'Highest PCM') {
-      filtered.sort((a, b) => parseFloat(b.monthly_payment) - parseFloat(a.monthly_payment));
+      filtered.sort((a, b) => parseFloat(String(b.monthly_payment)) - parseFloat(String(a.monthly_payment)));
     }
 
     setFilteredVehicles(filtered);
