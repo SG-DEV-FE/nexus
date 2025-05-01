@@ -273,11 +273,13 @@ export default function VehiclesList() {
                             placeholder="blur"
                             blurDataURL={dataURL}
                           />
+                          
                         ) : null
                       ))}
                     </div>
-                    <div className='hidden md:block lg:hidden'>
+                    <div className='hidden md:block lg:hidden releative'>
                     {vehicle.media_urls?.[0]?.medium && (
+                      <>
                       <Image
                         src={vehicle.media_urls[0].medium}
                         alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
@@ -287,11 +289,22 @@ export default function VehiclesList() {
                         onClick={() => openModal(vehicle.media_urls?.map((media) => media.large) || [])}
                         placeholder="blur"
                         blurDataURL={dataURL}
-                      />
+                        />
+                      {vehicle.advert_classification && (
+                        <span className='hidden md:block absolute px-[10px] py-[1px] text-white text-[16px] font-[600] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.advert_classification}</span>
+                      )}
+                      <div className='absolute bottom-[10px] left-[10px] hidden md:flex gap-1  '>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles</span>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.fuel_type}</span>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''}</span>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.body_type}</span>
+                      </div>
+                      </>
                     )}
                     </div>
                     <div className='hidden md:hidden lg:block'>
                     {vehicle.media_urls?.[0]?.large && (
+                      <>
                       <Image
                         src={vehicle.media_urls[0].large}
                         alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
@@ -302,13 +315,23 @@ export default function VehiclesList() {
                         placeholder="blur"
                         blurDataURL={dataURL}
                       />
+                      {vehicle.advert_classification && (
+                        <span className='hidden md:block absolute px-[10px] py-[1px] text-white text-[16px] font-[600] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.advert_classification}</span>
+                      )}
+                      <div className='absolute bottom-[10px] left-[10px] hidden md:flex gap-1  '>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles</span>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.fuel_type}</span>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''}</span>
+                        <span className='px-[10px] py-[1px] text-white text-[12px] font-[400] rounded-[8px] bg-[#3F3A50] border border[rgba(255, 255, 255, 0.2)] top-[10px] left-[10px] backdrop-blur[10px]'>{vehicle.body_type}</span>
+                      </div>
+                      </>
                     )}
                     </div>
                   </div>
                   <div className='flex justify-between items-center px-2 pt-2'>
                     <p className='text-[14px]-400 text-[#000000]'>{vehicle.plate} {vehicle.make} {vehicle.model}</p>
                     <div className='flex justify-between items-center px-2'>
-                      {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center'>New</p>}
+                      {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center md:hidden'>New</p>}
                       <button
                         onClick={() => toggleStar(String(vehicle.vehicle_id))}
                         className="focus:outline-none ml-2"
@@ -327,21 +350,18 @@ export default function VehiclesList() {
                     <p className='text-[12px]'>{vehicle.derivative}</p>
                   </div>
 
-                  <div>
-                    
-                  </div>
-
                   {/* Details Specs */}
-                  <div className='pb-2 md:hidden'>
+                  <div className='pb-2 '>
                     <div className='grid grid-cols-2 gap-2 px-2'>                
-                      <p className='text-[12px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles | {vehicle.fuel_type}</p>
-                      <p className='tex-[14px]'>£{vehicle.monthly_payment} /mo ({vehicle.monthly_finance_type})</p>
+                      <p className='text-[12px] md:hidden'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles | {vehicle.fuel_type}</p>
+                      <p className='tex-[14px]'><span className='font-[600]'>£{vehicle.monthly_payment}</span> /mo ({vehicle.monthly_finance_type})</p>
                     </div>
                     <div className='grid grid-cols-2 gap-2 px-2'>
-                      <p className='text-[12px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''} | {vehicle.body_type}</p>
-                      <p className='text-[12px]'><span className='text-[#F87B7B]'>£{vehicle.price}</span> <span className='line-through'>£{vehicle.original_price}</span></p>
+                      <p className='text-[12px] md:hidden'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''} | {vehicle.body_type}</p>
+                      <p className='text-[12px] col-span-2'><span className='text-[#F87B7B]'>£{vehicle.price}</span> <span className='line-through'>£{vehicle.original_price}</span> <span className='hidden md:inline text-[#7572FF]'>Calculate finance</span></p>
                     </div>
                   </div>
+                  <div className=''></div>
                 </div>
                 
                 {/* Insert valuation card at specific positions */}
@@ -481,7 +501,8 @@ export default function VehiclesList() {
           Back to top
         </button>
       </div>
-      {/* Modal for images */}
+
+      {/* Modal for images when at tablet or above */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
