@@ -7,6 +7,7 @@ import { dataURL } from '@/public/dataURL';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon as SolidStarIcon} from '@heroicons/react/16/solid';
 import { StarIcon as OutlineStarIcon} from '@heroicons/react/24/outline';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import React from 'react';
 
 export default function VehiclesList() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -160,74 +161,92 @@ export default function VehiclesList() {
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {currentVehicles.map((vehicle, index) => (
-            <div
-              key={vehicle.vehicle_id || Math.random()}
-              className=""
-            >
-              <div className="relative">
-                <div className="flex md:hidden overflow-x-auto space-x-2">
-                  {vehicle.media_urls?.map((media, idx) => (
-                    media.thumb ? (
-                      <Image
-                        key={idx}
-                        src={media.thumb}
-                        alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
-                        width={113}
-                        height={84}
-                        className="object-cover rounded-[16px]"
-                        placeholder="blur"
-                        blurDataURL={dataURL}
-                      />
-                    ) : null
-                  ))}
+            <React.Fragment key={vehicle.vehicle_id || Math.random()}>
+              <div className="">
+                <div className="relative">
+                  <div className="flex md:hidden overflow-x-auto space-x-2">
+                    {vehicle.media_urls?.map((media, idx) => (
+                      media.thumb ? (
+                        <Image
+                          key={idx}
+                          src={media.thumb}
+                          alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
+                          width={113}
+                          height={84}
+                          className="object-cover rounded-[16px]"
+                          placeholder="blur"
+                          blurDataURL={dataURL}
+                        />
+                      ) : null
+                    ))}
+                  </div>
+                  {vehicle.media_urls?.[0]?.large && (
+                    <Image
+                      src={vehicle.media_urls[0].large}
+                      alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
+                      width={300}
+                      height={160}
+                      className="hidden md:block w-full h-40 object-cover mb-2 cursor-pointer"
+                      onClick={() => openModal(vehicle.media_urls?.map((media) => media.large) || [])}
+                      placeholder="blur"
+                      blurDataURL={dataURL}
+                    />
+                  )}
                 </div>
-                {vehicle.media_urls?.[0]?.large && (
-                  <Image
-                    src={vehicle.media_urls[0].large}
-                    alt={`${vehicle.make || 'Unknown'} ${vehicle.model || 'Unknown'}`}
-                    width={300}
-                    height={160}
-                    className="hidden md:block w-full h-40 object-cover mb-2 cursor-pointer"
-                    onClick={() => openModal(vehicle.media_urls?.map((media) => media.large) || [])}
-                    placeholder="blur"
-                    blurDataURL={dataURL}
-                  />
-                )}
-              </div>
-              <div className='flex justify-between items-center px-2 pt-2'>
-                <p className='text-[14px]-400 text-[#000000]'>{vehicle.plate} {vehicle.make} {vehicle.model}</p>
-                <div className='flex justify-between items-center px-2'>
-                  {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center'>New</p>}
-                  <button
-                    onClick={() => toggleStar(String(vehicle.vehicle_id))}
-                    className="focus:outline-none ml-2"
-                    aria-label="Toggle favorite"
-                    type="button"
-                  >
-                    {starred[String(vehicle.vehicle_id)] ? (
-                      <SolidStarIcon className='w-[22px] h-[22px]' style={{ color: '#7572FF' }} />
-                    ) : (
-                      <OutlineStarIcon className='w-[22px] h-[22px]' />
-                    )}
-                  </button>
+                <div className='flex justify-between items-center px-2 pt-2'>
+                  <p className='text-[14px]-400 text-[#000000]'>{vehicle.plate} {vehicle.make} {vehicle.model}</p>
+                  <div className='flex justify-between items-center px-2'>
+                    {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center'>New</p>}
+                    <button
+                      onClick={() => toggleStar(String(vehicle.vehicle_id))}
+                      className="focus:outline-none ml-2"
+                      aria-label="Toggle favorite"
+                      type="button"
+                    >
+                      {starred[String(vehicle.vehicle_id)] ? (
+                        <SolidStarIcon className='w-[22px] h-[22px]' style={{ color: '#7572FF' }} />
+                      ) : (
+                        <OutlineStarIcon className='w-[22px] h-[22px]' />
+                      )}
+                    </button>
+                  </div>
+                </div>              
+                <div className='flex justify-between items-center px-2 pb-2'>
+                  <p className='text-[12px]'>{vehicle.derivative}</p>
                 </div>
-              </div>              
-              <div className='flex justify-between items-center px-2 pb-2'>
-                <p className='text-[12px]'>{vehicle.derivative}</p>
-              </div>
 
-              {/* Details Specs */}
-              <div className='pb-2 md:hidden'>
-                <div className='grid grid-cols-2 gap-2 px-2'>                
-                  <p className='text-[12px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles | {vehicle.fuel_type}</p>
-                  <p className='tex-[14px]'>£{vehicle.monthly_payment} /mo ({vehicle.monthly_finance_type})</p>
+                <div>
+                  
                 </div>
-                <div className='grid grid-cols-2 gap-2 px-2'>
-                  <p className='text-[12px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''} | {vehicle.body_type}</p>
-                  <p className='text-[12px]'><span className='text-[#F87B7B]'>£{vehicle.price}</span> <span className='line-through'>£{vehicle.original_price}</span></p>
+
+                {/* Details Specs */}
+                <div className='pb-2 md:hidden'>
+                  <div className='grid grid-cols-2 gap-2 px-2'>                
+                    <p className='text-[12px]'>{vehicle.odometer_value >= 10000 ? `${Math.round(vehicle.odometer_value / 1000)}k` : `${Math.round(vehicle.odometer_value / 5) * 5} `} miles | {vehicle.fuel_type}</p>
+                    <p className='tex-[14px]'>£{vehicle.monthly_payment} /mo ({vehicle.monthly_finance_type})</p>
+                  </div>
+                  <div className='grid grid-cols-2 gap-2 px-2'>
+                    <p className='text-[12px]'>{vehicle.transmission ? vehicle.transmission.charAt(0).toUpperCase() + vehicle.transmission.slice(1).toLowerCase() : ''} | {vehicle.body_type}</p>
+                    <p className='text-[12px]'><span className='text-[#F87B7B]'>£{vehicle.price}</span> <span className='line-through'>£{vehicle.original_price}</span></p>
+                  </div>
                 </div>
               </div>
-            </div>
+              {/* Valuation inset */}
+              {/* TODO: adjust for md and up for the form group */}
+              {(index + 1) % 4 === 0 && (
+                <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center mb-6">
+                  <div className="flex items-center justify-between bg-[#D1D6E0] border border-[#D1D6E0] rounded-[16px] p-[13px] w-full max-w-md shadow-sm">
+                    <div>
+                      <div className="font-bold text-[18px] text-black">Value your car</div>
+                      <div className="text-[12px] text-black mt-1">Find out in just a few minutes</div>
+                    </div>
+                    <button className="ml-4 px-[25px] py-[12px] bg-[#7572FF] text-white rounded-[16px] text-[16px]">
+                      Get valuation
+                    </button>
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
           ))}
         </div>
 
