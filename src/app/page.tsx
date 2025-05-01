@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { Vehicle } from './types';
 import Modal from 'react-modal'; 
 import { dataURL } from '@/public/dataURL';
-import { ChevronDownIcon } from '@heroicons/react/16/solid';
+import { ChevronDownIcon, StarIcon as SolidStarIcon} from '@heroicons/react/16/solid';
+import { StarIcon as OutlineStarIcon} from '@heroicons/react/24/outline';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 
 export default function VehiclesList() {
@@ -16,6 +17,7 @@ export default function VehiclesList() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const vehiclesPerPage = 6;
   const [sortOption, setSortOption] = useState<string>('Highest Price'); // Default to Highest Price
+  const [starred, setStarred] = useState<{ [id: string]: boolean }>({});
 
   const fetchVehicles = async () => {
     try {
@@ -69,6 +71,13 @@ export default function VehiclesList() {
   const closeModal = () => {
     setIsModalOpen(false);
     setModalImages([]);
+  };
+
+  const toggleStar = (vehicleId: string) => {
+    setStarred((prev) => ({
+      ...prev,
+      [vehicleId]: !prev[vehicleId],
+    }));
   };
 
   useEffect(() => {
@@ -184,6 +193,24 @@ export default function VehiclesList() {
                     blurDataURL={dataURL}
                   />
                 )}
+              </div>
+              <div className='flex justify-between items-center px-2 py-2'>
+                <p className='text-[14px]-400 text-[#000000]'>{vehicle.plate} {vehicle.make} {vehicle.model}</p>
+                <div className='flex justify-between items-center px-2'>
+                  {vehicle.advert_classification === 'New' && <p className='bg-[#3F3A50] px-[10px] rounded-[8px] text-[12px] text-white w-[46px] h-[22px] pt-0.5 text-center'>New</p>}
+                  <button
+                    onClick={() => toggleStar(String(vehicle.vehicle_id))}
+                    className="focus:outline-none ml-2"
+                    aria-label="Toggle favorite"
+                    type="button"
+                  >
+                    {starred[String(vehicle.vehicle_id)] ? (
+                      <SolidStarIcon className='w-[22px] h-[22px]' style={{ color: '#7572FF' }} />
+                    ) : (
+                      <OutlineStarIcon className='w-[22px] h-[22px]' />
+                    )}
+                  </button>
+                </div>
               </div>
               <h2 className="text-lg font-semibold">
                 {vehicle.make || 'Unknown'} {vehicle.model || 'Unknown'}
