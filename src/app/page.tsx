@@ -244,7 +244,7 @@ export default function VehiclesList() {
         </Menu>
       </div>
       {/* main */}
-      <div className="">
+      <div className="px-4 md:px-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {currentVehicles.map((vehicle, index) => {
             // Calculate the actual position in the full dataset
@@ -462,45 +462,139 @@ export default function VehiclesList() {
           })}
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center items-center mt-6 space-x-1">
-          <button
-            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeftIcon className='w-[27px] h-[22px] text-black' />
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => (
+        {/* Pagination and back to top - Mobile view */}
+        <div className="md:hidden">
+          {/* Pagination */}
+          <div className="flex justify-center items-center mt-6 space-x-1">
             <button
-              key={i + 1}
-              className={`px-3 w-[54px] h-[30px] py-1 border rounded border-[#D1D6E0] ${
-                currentPage === i + 1 ? 'bg-[#7572FF] text-white' : ''
-              }`}
-              onClick={() => handlePageChange(i + 1)}
+              className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
             >
-              {i + 1}
+              <ChevronLeftIcon className='w-[27px] h-[22px] text-black' />
             </button>
-          ))}
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                className={`px-3 w-[54px] h-[30px] py-1 border rounded border-[#D1D6E0] ${
+                  currentPage === i + 1 ? 'bg-[#7572FF] text-white' : ''
+                }`}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRightIcon className='w-[27px] h-[22px] text-black' />
+            </button>
+            <button
+              className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <div className="flex">
+                <ChevronRightIcon className='w-[27px] h-[22px] text-black' />
+                <ChevronRightIcon className='w-[27px] h-[22px] text-black -ml-1' />
+              </div>
+            </button>
+          </div>
+
+          {/* Back to top button - Mobile */}
+          <div className='flex justify-center items-center mt-5'>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="text-black underline cursor-pointer bg-transparent border-none p-0"
+              type="button"
+            >
+              Back to top
+            </button>
+          </div>
+        </div>
+
+        {/* Combined layout for md and above */}
+        <div className="hidden md:flex justify-between items-center mt-6 mb-4">
+          {/* Back to top button */}
           <button
-            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="text-black underline cursor-pointer bg-transparent border-none p-0"
+            type="button"
           >
-            <ChevronRightIcon className='w-[27px] h-[22px] text-black' />
+            Back to top
           </button>
+
+          {/* Pagination */}
+          <div className="flex items-center space-x-1">
+            <button
+              className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeftIcon className='w-[27px] h-[22px] text-black' />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                className={`px-3 w-[54px] h-[30px] py-1 border rounded border-[#D1D6E0] ${
+                  currentPage === i + 1 ? 'bg-[#7572FF] text-white' : ''
+                }`}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRightIcon className='w-[27px] h-[22px] text-black' />
+            </button>
+            <button
+              className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50 border-[#D1D6E0]"
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <div className="flex">
+                <ChevronRightIcon className='w-[27px] h-[22px] text-black' />
+                <ChevronRightIcon className='w-[27px] h-[22px] text-black -ml-1' />
+              </div>
+            </button>
+          </div>
+
+          {/* Sort dropdown */}
+          <Menu as="div" className="relative text-left">
+            <div>
+              <MenuButton
+                as="button"
+                className="cursor-pointer inline-flex justify-center w-full text-[14px] text-[#55595D] bg-[#F6F7FB] rounded-[16px] px-4 py-2 font-medium hover:bg-[#7572ff] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:bg-[#7572FF] focus:text-white"
+              >
+                {sortOption}
+                <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+              </MenuButton>
+            </div>
+            <MenuItems
+              as="div"
+              className="absolute right-0 z-10 mt-2 w-[160px] origin-top-right bg-[#F6F7FB] divide-y divide-gray-100 rounded-[16px] shadow-lg focus:outline-none"
+            >
+              {priceTags.map((option) => (
+                <MenuItem key={option.label}>
+                  <button
+                    onClick={() => setSortOption(option.value)}
+                    className='group cursor-pointer flex rounded-md items-center w-full px-4 py-2 text-sm text-[#55595D] hover:bg-[#7572FF] hover:text-white focus:bg-[#7572FF] focus:text-white'
+                  >
+                    {option.value}
+                  </button>
+                </MenuItem>
+              ))}
+            </MenuItems>
+          </Menu>
         </div>
       </div>
-      {/* Back to top button */}
-      <div className='flex justify-center items-center mt-5'>
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="text-black underline cursor-pointer bg-transparent border-none p-0"
-          type="button"
-        >
-          Back to top
-        </button>
-      </div>
+      
 
       {/* Modal for images when at tablet or above */}
       <Modal
