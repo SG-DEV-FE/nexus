@@ -3,7 +3,7 @@ export interface Vehicle {
     vehicle_id: number;
     make: string;
     model: string;
-    price: number;
+    price: string | number;
     price_when_new: string;
     body_type: string;
     media_urls: { thumb: string; large: string; medium: string }[];
