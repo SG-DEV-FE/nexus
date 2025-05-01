@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Vehicle } from './types';
 import Modal from 'react-modal'; 
 import { dataURL } from '@/public/dataURL';
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon as SolidStarIcon} from '@heroicons/react/16/solid';
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, StarIcon as SolidStarIcon} from '@heroicons/react/16/solid';
 import { StarIcon as OutlineStarIcon} from '@heroicons/react/24/outline';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import React from 'react';
@@ -578,12 +578,12 @@ export default function VehiclesList() {
                 className="cursor-pointer inline-flex justify-center w-full text-[14px] text-[#55595D] bg-[#F6F7FB] rounded-[16px] px-4 py-2 font-medium hover:bg-[#7572ff] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:bg-[#7572FF] focus:text-white"
               >
                 {sortOption}
-                <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+                <ChevronUpIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
               </MenuButton>
             </div>
             <MenuItems
               as="div"
-              className="absolute right-0 z-10 mt-2 w-[160px] origin-top-right bg-[#F6F7FB] divide-y divide-gray-100 rounded-[16px] shadow-lg focus:outline-none"
+              className="absolute right-0 bottom-full mb-2 z-10 w-[160px] origin-bottom-right bg-[#F6F7FB] divide-y divide-gray-100 rounded-[16px] shadow-lg focus:outline-none"
             >
               {priceTags.map((option) => (
                 <MenuItem key={option.label}>
