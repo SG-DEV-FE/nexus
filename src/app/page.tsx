@@ -8,46 +8,65 @@ import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon as SolidSt
 import { StarIcon as OutlineStarIcon} from '@heroicons/react/24/outline';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import React from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function VehiclesList() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState<string>('All');
+  const [selectedFilter, setSelectedFilter] = useState<string>(
+    searchParams.get('advert_classification') === 'Used' ? 'Used' :
+    searchParams.get('advert_classification') === 'New' ? 'New' :
+    searchParams.get('advert_classification') === 'Offers' ? 'Offers' : 'All'
+  );
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [sortOption, setSortOption] = useState<string>('Highest Price'); // Default to Highest Price
+  const [currentPage, setCurrentPage] = useState<number>(
+    parseInt(searchParams.get('page') || '1')
+  );
+  const [sortOption, setSortOption] = useState<string>(searchParams.get('sort') || 'Highest Price');
   const [starred, setStarred] = useState<{ [id: string]: boolean }>({});
-
-  const getVehiclesPerPage = () => {
-    // This will run on the client side after component mounts
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth >= 1024) {
-        return 12; // 12 total slots with valuation card
-      } else if (window.innerWidth >= 768) {
-        return 8; // 8 total slots with valuation card
-      }
-    }
-    return 6; // 6 total slots with valuation card for mobile
-  };
-
+  
+  const [screenWidth, setScreenWidth] = useState(0);
   const [vehiclesPerPage, setVehiclesPerPage] = useState<number>(6);
 
-  // Add this useEffect to update the vehiclesPerPage when window resizes
   useEffect(() => {
     const handleResize = () => {
-      setVehiclesPerPage(getVehiclesPerPage());
+      const width = window.innerWidth;
+      setScreenWidth(width);
+      
+      // Single function to calculate vehicles per page
+      let vehiclesCount;
+      if (width >= 1024) {
+        vehiclesCount = 12;
+      } else if (width >= 768) {
+        vehiclesCount = 8;
+      } else {
+        vehiclesCount = 6;
+      }
+      setVehiclesPerPage(vehiclesCount);
     };
     
-    // Set initial value
-    handleResize();
-    
-    // Add event listener
+    handleResize(); // Call once on mount
     window.addEventListener('resize', handleResize);
-    
-    // Clean up
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams();
+      params.set('page', currentPage.toString());
+      params.set('results_per_page', vehiclesPerPage.toString());
+      
+      if (selectedFilter !== 'All') {
+        params.set('advert_classification', selectedFilter);
+      }    
+      params.set('sort', sortOption);
+      router.push(`?${params.toString()}`, { scroll: false });
+    }
+  }, [currentPage, selectedFilter, sortOption, vehiclesPerPage, router]);
 
   const fetchVehicles = async () => {
     try {
@@ -60,7 +79,6 @@ export default function VehiclesList() {
   };
 
   const filterVehicles = () => {
-    // Always work with a new array to avoid mutating state
     let filtered = [...vehicles];
 
     // Apply top filter (All, Used, New, Offers)
@@ -116,7 +134,7 @@ export default function VehiclesList() {
 
   useEffect(() => {
     filterVehicles();
-    setCurrentPage(1); // Reset to the first page when filter changes
+    setCurrentPage(1); 
   }, [vehicles, selectedFilter, sortOption]);
 
   // Pagination logic
@@ -131,35 +149,34 @@ export default function VehiclesList() {
     }
   };
 
-  // Add this to your component to track screen width
-  const [screenWidth, setScreenWidth] = useState(0);
-
   useEffect(() => {
-    // Set initial width
     setScreenWidth(window.innerWidth);
-    
-    // Update width on resize
     const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     
-    // Clean up
+  
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // When calculating pagination
+  
   const calculateVehiclesPerPage = () => {
     if (screenWidth >= 1024) {
-      return 11; // 11 vehicle cards + 1 valuation card = 12 items per page
+      return 11;
     } else if (screenWidth >= 768) {
-      return 7; // 7 vehicle cards + 1 valuation card = 8 items per page  
+      return 7;
     }
-    return 5; // 5 vehicle cards + 1 valuation card = 6 items per mobile page
+    return 5;
   };
 
-  // Update whenever screen size changes
   useEffect(() => {
     setVehiclesPerPage(calculateVehiclesPerPage());
   }, [screenWidth]);
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilter(filter);
+    setCurrentPage(1); 
+    setSortOption('Highest Price'); 
+  };
 
   return (
     <>
@@ -172,10 +189,7 @@ export default function VehiclesList() {
             key={filter}
             className={`cursor-pointer text-[14px] md:px-[25px] md:py-[8px] md:rounded-[12px] md:h-[30px] md:font-[400] md:border md:leading-none md:mr-[-7px] hover:md:border-[#7572FF] hover:md:bg-[#7572FF] hover:md:text-white ${selectedFilter === filter ? 'border-b-[4px] border-[#7572FF] md:bg-[#7572FF] md:text-white ' : 'text-black-400 md:border-[#D1D6E0] md:bg-white'}
             `}
-            onClick={() => {
-              setSelectedFilter(filter);
-              setSortOption('Highest Price'); // Reset sort to Highest Price on filter change
-            }}
+            onClick={() => handleFilterChange(filter)}
           >
             {filter}
           </p>
@@ -217,7 +231,7 @@ export default function VehiclesList() {
               as="button"
               className="inline-flex justify-center w-full text-[14px] text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
             >
-              {sortOption} {/* Update button text to reflect selected sort option */}
+              {sortOption}
               <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
             </MenuButton>
           </div>
@@ -228,16 +242,12 @@ export default function VehiclesList() {
           >
             {priceTags.map((option) => (
               <MenuItem key={option.label}>
-                {({ active }) => (
                   <button
                     onClick={() => setSortOption(option.value)}
-                    className={`${
-                      active ? 'bg-gray-100' : ''
-                    } group cursor-pointer flex rounded-md items-center w-full px-4 py-2 text-sm text-[#55595D] hover:bg-[#7572FF] hover:text-white focus:bg-[]#7572FF] focus:text-white`}
+                    className='group cursor-pointer flex rounded-md items-center w-full px-4 py-2 text-sm text-[#55595D] hover:bg-[#7572FF] hover:text-white focus:bg-[]#7572FF] focus:text-white'
                   >
                     {option.value}
                   </button>
-                )}
               </MenuItem>
             ))}
           </MenuItems>
@@ -246,11 +256,7 @@ export default function VehiclesList() {
       {/* main */}
       <div className="px-4 md:px-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentVehicles.map((vehicle, index) => {
-            // Calculate the actual position in the full dataset
-            const actualIndex = indexOfFirstVehicle + index;
-            
-            // Determine if valuation cards should be shown
+          {currentVehicles.map((vehicle, index) => {            
             const isMobile = screenWidth > 0 && screenWidth < 768;
             const isMedium = screenWidth >= 768 && screenWidth < 1024;
             const isLarge = screenWidth >= 1024;
@@ -365,7 +371,6 @@ export default function VehiclesList() {
                 </div>
                 
                 {/* Insert valuation card at specific positions */}
-                {/* For mobile: after 3rd card on the page */}
                 {isMobile && index === 3 && (
                   <div className="col-span-1 flex md:hidden justify-center mb-6">
                     <div className="flex items-center justify-between bg-[#F6F7FB] border border-[#D1D6E0] rounded-[16px] p-[13px] w-full max-w-md shadow-sm">
@@ -603,6 +608,7 @@ export default function VehiclesList() {
         contentLabel="Vehicle Images"
         className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+        ariaHideApp={false} // Add this prop to prevent accessibility warnings
       >
         <div className="bg-white p-4 rounded-lg max-w-3xl w-full relative overflow-y-auto max-h-[90vh]">
           <button
