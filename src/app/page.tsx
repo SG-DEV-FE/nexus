@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Vehicle } from './types';
 import Modal from 'react-modal'; 
 import { dataURL } from '@/public/dataURL';
-import { ChevronDownIcon, StarIcon as SolidStarIcon} from '@heroicons/react/16/solid';
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, StarIcon as SolidStarIcon} from '@heroicons/react/16/solid';
 import { StarIcon as OutlineStarIcon} from '@heroicons/react/24/outline';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 
@@ -222,19 +222,19 @@ export default function VehiclesList() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center items-center mt-6 space-x-2">
+        <div className="flex justify-center items-center mt-6 space-x-1">
           <button
-            className="px-3 py-1 border rounded disabled:opacity-50"
+            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            &lt;
+            <ChevronLeftIcon className='w-[27px] h-[22px] text-black' />
           </button>
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i + 1}
-              className={`px-3 py-1 border rounded ${
-                currentPage === i + 1 ? 'bg-blue-500 text-white' : ''
+              className={`px-3 w-[54px] h-[30px] py-1 border rounded ${
+                currentPage === i + 1 ? 'bg-[#7572FF] text-white' : ''
               }`}
               onClick={() => handlePageChange(i + 1)}
             >
@@ -242,13 +242,23 @@ export default function VehiclesList() {
             </button>
           ))}
           <button
-            className="px-3 py-1 border rounded disabled:opacity-50"
+            className="px-3 py-1 w-[54px] h-[30px] border rounded disabled:opacity-50"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
-            &gt;
+            <ChevronRightIcon className='w-[27px] h-[22px] text-black' />
           </button>
         </div>
+      </div>
+
+      <div className='flex justify-center items-center mt-5'>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="text-black underline cursor-pointer bg-transparent border-none p-0"
+          type="button"
+        >
+          Back to top
+        </button>
       </div>
 
       <Modal
